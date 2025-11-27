@@ -22,9 +22,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     sudo \
     locales \
-    # 다른 리포지토리 추가에 사용될 수 있으므로 유지
     apt-transport-https \
     gpg \
+    openssh-server \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -44,6 +44,12 @@ RUN useradd -m -s /bin/zsh -u 1001 -G sudo dev-user && \
     echo 'dev-user ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
     touch /home/dev-user/.zshrc && \
     chown dev-user:dev-user /home/dev-user/.zshrc
+
+# 3. SSH Server Configuration (for Remote Development)
+# Set password for dev-user (required for SSH login). Default: devpass
+RUN echo 'dev-user:devpass' | chpasswd && \
+    mkdir -p /var/run/sshd && \
+    chmod 0755 /var/run/sshd
 
 # 5. SDKMAN! 핵심 파일 설치
 ENV SDKMAN_DIR="/usr/local/sdkman"

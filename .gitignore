@@ -22,3 +22,6 @@ node_modules/
 # 운영체제 생성 파일
 .DS_Store
 Thumbs.db
+
+# Dev Container 작업 공간 (Nested Git 방지)
+projects/

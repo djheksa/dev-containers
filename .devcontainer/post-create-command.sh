@@ -3,6 +3,10 @@ set -e
 
 echo "Running post-create setup as user: $(whoami)..."
 
+# --- 0. Start SSH Server (for Remote Development) ---
+echo "Starting SSH server..."
+sudo service ssh start
+
 # --- 1. Install Shell Tools (Oh My Zsh & plugins) ---
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo "Installing Oh My Zsh..."
@@ -31,6 +35,9 @@ fi
 if [ -d "/opt/nvm" ]; then
     sudo chown -R dev-user:dev-user /opt/nvm
 fi
+if [ -d "$HOME/.config" ]; then
+    sudo chown -R dev-user:dev-user $HOME/.config
+fi
 
 
 # --- 3. Source SDK scripts to make them available in this script ---
@@ -55,8 +62,12 @@ if [ "$INSTALL_EXTRA_JDKS" = "true" ]; then
 fi
 if [ "$INSTALL_NODE" = "true" ]; then
     echo "Installing Node.js LTS..."
-    (nvm install --lts || echo "WARNING: Failed to install Node LTS, but continuing...")
-    (nvm alias default lts/* || echo "WARNING: Failed to set default Node, but continuing...")
+    nvm install --lts || echo "WARNING: Failed to install Node LTS, but continuing..."
+    nvm alias default lts/* || echo "WARNING: Failed to set default Node, but continuing..."
+    nvm use default
+
+    echo "Installing Google Gemini CLI..."
+    npm install -g @google/gemini-cli || echo "WARNING: Failed to install Google Gemini CLI"
 fi
 
 
@@ -129,6 +140,7 @@ GRAY='\e[90m'
 # Get System Info
 JAVA_INFO=$(java -version 2>&1 | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/' || echo "n/a")
 NODE_INFO=$(node -v || echo "n/a")
+GEMINI_INFO=$(gemini --version 2>/dev/null || echo "Not Found")
 DISK_INFO=$(df -h /workspace | awk 'END{print $4 " free"}' || echo "n/a")
 USER_INFO=$(whoami)
 
@@ -141,8 +153,11 @@ printf "   ${GRAY}- Java      :${RESET} %s\n" "$JAVA_INFO"
 if [ "$INSTALL_NODE" = "true" ]; then
 printf "   ${GRAY}- Node.js   :${RESET} %s\n" "$NODE_INFO"
 fi
+printf "   ${GRAY}- Gemini CLI:${RESET} %s\n" "$GEMINI_INFO"
 printf "   ${GRAY}- User      :${RESET} %s\n" "$USER_INFO"
-printf "   ${GRAY}- Workspace :${RESET} %s\n" "/workspace ($DISK_INFO)"
+printf "   ${GRAY}- Workspace :${RESET} %s (projects)\n" "/workspace ($DISK_INFO)"
+printf "   ${GRAY}- Config    :${RESET} /opt/dev_container_root\n"
+printf "   ${GRAY}- SSH Access:${RESET} Host: localhost, Port: 2222, User: dev-user, Pass: devpass\n"
 
 printf "\n${BOLD}${MAGENTA}💡 ALIASES${RESET}\n"
 
@@ -154,6 +169,12 @@ printf "   ${GREEN}- sdn <ver>${RESET} : Set default Node.js version\n"
 fi
 printf "   ${GREEN}- sp <url> ${RESET} : Start a new project (git clone)\n"
 printf "\n"
+
+if [ "$GEMINI_INFO" != "Not Found" ]; then
+    printf "${BOLD}${MAGENTA}⚠️  NOTE${RESET}\n"
+    printf "   To use Gemini, run: ${BOLD}gemini chat${RESET} or simply ${BOLD}gemini${RESET}\n"
+    printf "   It will prompt you to login with Google.\n\n"
+fi
 EOF
 
 # Atomically move the new .zshrc into place
