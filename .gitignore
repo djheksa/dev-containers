@@ -1,0 +1,24 @@
+# IDE - 일반
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# 환경설정 파일
+.env
+
+# 빌드 결과물
+build/
+target/
+dist/
+out/
+
+# 의존성 폴더
+node_modules/
+
+# 로그 파일
+*.log
+
+# 운영체제 생성 파일
+.DS_Store
+Thumbs.db

@@ -1,0 +1,8 @@
+{
+  "name": "All-in-One Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "dev-user",
+
+}

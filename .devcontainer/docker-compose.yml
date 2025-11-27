@@ -1,0 +1,39 @@
+# docker-compose.yml
+services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # 빌드 시점에 .env 파일의 변수들을 Dockerfile에 전달
+      args:
+        - INSTALL_NODE=${INSTALL_NODE}
+        - INSTALL_EXTRA_JDKS=${INSTALL_EXTRA_JDKS}
+        - INSTALL_CONVENIENCE_TOOLS=${INSTALL_CONVENIENCE_TOOLS}
+        - INSTALL_ZSH_PLUGINS=${INSTALL_ZSH_PLUGINS}
+    
+    # 컨테이너의 기본 사용자를 'dev-user'로 설정
+    user: dev-user
+    
+    # 실행 중인 컨테이너에 .env 변수들을 전달 (post-create 스크립트용)
+    environment:
+      - INSTALL_NODE=${INSTALL_NODE}
+      - INSTALL_EXTRA_JDKS=${INSTALL_EXTRA_JDKS}
+      - INSTALL_CONVENIENCE_TOOLS=${INSTALL_CONVENIENCE_TOOLS}
+      - INSTALL_ZSH_PLUGINS=${INSTALL_ZSH_PLUGINS}
+      
+    volumes:
+      # 1. 소스 코드 (바인드 마운트를 통해 영속화)
+      - ../:/workspace:cached
+      
+      # 2. 도구 설정 ('dev-user'를 위한 네임드 볼륨을 통해 영속화)
+      - sdkman-data:/usr/local/sdkman/candidates
+      - nvm-data:/opt/nvm/versions
+      - zsh-history:/home/dev-user/.zsh
+      
+    command: sleep infinity
+
+# 최상위 레벨에서 네임드 볼륨 선언
+volumes:
+  sdkman-data:
+  nvm-data:
+  zsh-history:
