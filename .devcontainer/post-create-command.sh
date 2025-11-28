@@ -38,6 +38,36 @@ fi
 if [ -d "$HOME/.config" ]; then
     sudo chown -R dev-user:dev-user $HOME/.config
 fi
+if [ -d "$HOME/.gemini" ]; then
+    sudo chown -R dev-user:dev-user $HOME/.gemini
+fi
+
+# --- Fix Git Config Persistence (Symlink Strategy) ---
+# Remove the directory if Docker created it incorrectly
+if [ -d "$HOME/.gitconfig" ]; then
+    echo "Removing .gitconfig directory created by Docker..."
+    rm -rf "$HOME/.gitconfig"
+fi
+
+# Ensure the persistence directory exists and has correct permissions
+if [ -d "$HOME/.git-state" ]; then
+    sudo chown -R dev-user:dev-user "$HOME/.git-state"
+    
+    # Create the actual config file if it doesn't exist
+    if [ ! -f "$HOME/.git-state/.gitconfig" ]; then
+        touch "$HOME/.git-state/.gitconfig"
+    fi
+    
+    # Link ~/.gitconfig -> ~/.git-state/.gitconfig
+    if [ ! -L "$HOME/.gitconfig" ]; then
+        ln -s "$HOME/.git-state/.gitconfig" "$HOME/.gitconfig"
+    fi
+fi
+
+if [ -d "$HOME/.ssh" ]; then
+    sudo chown -R dev-user:dev-user $HOME/.ssh
+    sudo chmod 700 $HOME/.ssh
+fi
 
 
 # --- 3. Source SDK scripts to make them available in this script ---

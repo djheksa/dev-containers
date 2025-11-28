@@ -38,6 +38,11 @@ services:
       - zsh-history:/home/dev-user/.zsh
       # CLI 설정(로그인 정보 등) 영속화
       - dev-user-config:/home/dev-user/.config
+      - dev-user-gemini:/home/dev-user/.gemini
+      # Git 설정 저장소 (파일 직접 마운트 불가 이슈 해결)
+      - dev-user-gitconfig:/home/dev-user/.git-state
+      # SSH 키 영속화
+      - dev-user-ssh:/home/dev-user/.ssh
       
     command: sleep infinity
 
@@ -47,3 +52,6 @@ volumes:
   nvm-data:
   zsh-history:
   dev-user-config:
+  dev-user-gemini:
+  dev-user-gitconfig:
+  dev-user-ssh:
