@@ -20,9 +20,10 @@
 - Gradle
 - Maven
 
-### 버전 관리 시스템 (VCS)
+### 버전 관리 및 클라우드 도구
 - Git
 - Subversion (svn)
+- **Google Gemini CLI** (AI 코딩 어시스턴트)
 
 ### 터미널 환경
 - **기본 셸**: Zsh
@@ -71,27 +72,27 @@ chmod +x dev.sh
 
 ---
 
-## 💻 호스트 IDE와 연동하기 (원격 개발)
+## 🔌 개발 환경 접속 (SSH)
 
-이 CLI 컨테이너는 호스트 PC에 설치된 IntelliJ IDEA나 VS Code와 같은 IDE의 강력한 백엔드 역할을 할 수 있습니다. 이 방식을 사용하면, 호스트에서는 부드러운 네이티브 UI를 사용하면서, 실제 코드 분석, 빌드, 실행은 컨테이너의 격리된 환경에서 이루어집니다.
+이 컨테이너는 호스트 PC의 터미널이나 **IntelliJ IDEA의 Remote Development (SSH)** 기능을 통해 직접 접속할 수 있도록 SSH 서버를 내장하고 있습니다. 호스트의 **2222 포트**가 컨테이너의 SSH 포트(22)와 연결되어 있습니다.
 
-### IntelliJ IDEA
-1.  **사전 준비**: 호스트 PC(Mac, Windows 등)에 **IntelliJ IDEA** (Ultimate 또는 Community)를 설치합니다.
-2.  **Remote Development 시작**:
-    *   IntelliJ IDEA를 실행합니다.
-    *   IntelliJ 상단 메뉴에서 **`File` > `Remote Development`**를 클릭합니다. (IntelliJ 시작 화면에서도 'Remote Development' 기능을 찾을 수 있습니다.)
-3.  **Dev Container 선택**: `Remote Development` 섹션 아래의 **Dev Containers** 탭을 클릭합니다.
-4.  **연결**:
-    *   **실행 중인 컨테이너에 연결**: 목록에서 현재 실행 중인 `devcontainer-devcontainer-1` (또는 `All-in-One CLI Dev Container`)를 찾아 클릭합니다.
-    *   **프로젝트 폴더에서 직접 연결**: "New Connection" 또는 "Add Dev Container Path"를 눌러 이 프로젝트 폴더(`dev_container`)를 직접 선택할 수도 있습니다.
-5.  **백엔드 설치 및 클라이언트 실행**: 연결을 시작하면 Gateway가 컨테이너에 접속하여 원격 개발에 필요한 구성 요소를 자동으로 설치하거나 확인한 후, 호스트 PC에 원격 연결용 IntelliJ 클라이언트를 실행합니다.
+**기본 접속 정보:**
+*   **Host**: `localhost`
+*   **Port**: `2222`
+*   **User**: `dev-user`
+*   **Password**: `devpass`
 
-### Visual Studio Code
-1.  **사전 준비**: 호스트 PC에 **Visual Studio Code**와 Microsoft의 **"Dev Containers"** 확장 프로그램을 설치합니다.
-2.  **연결**:
-    *   VS Code에서 이 프로젝트 폴더(`dev_container`)를 엽니다.
-    *   VS Code가 `.devcontainer` 폴더를 자동으로 감지하고, 창 우측 하단에 **"Reopen in Container"** 알림을 표시합니다.
-    *   이 알림 버튼을 클릭하면, VS Code가 자동으로 컨테이너를 시작하고 원격으로 연결하여 창을 다시 엽니다.
+**IntelliJ IDEA에서 SSH로 연결하기:**
+1.  IntelliJ Gateway 실행 또는 IntelliJ IDEA의 시작 화면에서 `Remote Development` > `SSH` 탭을 선택합니다.
+2.  `New Connection`을 클릭합니다.
+3.  Host: `localhost`, Port: `2222`, User: `dev-user`를 입력하고 `Check Connection and Continue`를 클릭합니다.
+4.  비밀번호 입력 창이 나타나면 `devpass`를 입력합니다.
+5.  연결이 성공하면, IntelliJ 백엔드가 컨테이너에 설치되고 프로젝트를 열 수 있습니다. `Path to project`에서 `/workspace` 경로를 선택하세요.
+
+**터미널 접속 예시:**
+```bash
+ssh -p 2222 dev-user@localhost
+```
 
 ---
 
@@ -144,6 +145,10 @@ chmod +x dev.sh
 | `sdkman-data`           | `SDKMAN`으로 설치된 Java, Gradle 등 SDK 파일      |
 | `nvm-data`              | `nvm`으로 설치된 Node.js 버전 파일                  |
 | `zsh-history`           | Zsh 터미널에서 사용한 명령어 기록 (`history` 파일)    |
+| `dev-user-config`       | 사용자 `.config` 디렉토리 (일반 설정 저장)            |
+| `dev-user-gemini`       | Gemini CLI 로그인 정보 (`~/.gemini`)                  |
+| `dev-user-gitconfig`    | Git 설정 (`.gitconfig`)                               |
+| `dev-user-ssh`          | SSH 키 및 설정 (`~/.ssh`)                             |
 
 ### 3. 설정 백업 및 복원 (`dev.sh` 사용)
 `dev.sh`의 `backup` 및 `restore` 명령어를 사용하여 모든 도구 설정(네임드 볼륨)을 쉽게 백업하고 다른 PC에서 복원할 수 있습니다.
@@ -160,3 +165,13 @@ chmod +x dev.sh
   ./dev.sh restore ./backups/dev_container_backup_20251127_170000.tar.gz
   ```
   - **주의**: 복원 전에는 컨테이너가 중지된 상태여야 합니다. (`./dev.sh down`)
+
+---
+
+## 📚 추가 문서
+
+이 프로젝트를 더 잘 활용하기 위한 상세 문서들입니다:
+
+*   **[ALIASES.md](ALIASES.md)**: 터미널 작업을 빠르게 만들어주는 모든 단축 명령어 목록
+*   **[CUSTOMIZING.md](CUSTOMIZING.md)**: Dockerfile 수정, 새로운 도구 추가 등 나만의 환경을 만드는 가이드
+
